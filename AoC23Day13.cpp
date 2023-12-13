@@ -1,60 +1,34 @@
 import std.core;
 
-int FindColumnMirror(const std::vector<std::string>& m, int ignore = 0)
+std::pair<int, int> FindMirrors(std::vector<std::string>& m)
 {
-	for (int i = 1; i < m.front().size(); ++i)
+	std::pair<int, int> results;
+
+	for (int i = 1, count = 0; i < m.front().size() && !(results.first & results.second); ++i, count = 0)
 	{
-		if (i == ignore) continue;
-		bool valid = true;
 		for (const std::string& s : m)
-		{
-			for (int x = i - 1, y = i; x >= 0 && y < s.size() && valid; --x, ++y)
-				valid = (valid && s[x] == s[y]);
-			if (!valid)
-				break;
-		}
-		if (valid)
-			return i;
+			for (int x = i - 1, y = i; x >= 0 && y < s.size() && count < 2; --x, ++y)
+				count += (s[x] != s[y]);
+
+		if (count == 0)
+			results.first = i;
+		else if (count == 1)
+			results.second = i;
 	}
-
-	return 0;
-}
-
-int FindRowMirror(const std::vector<std::string>& m, int ignore = 0)
-{
-	for (int i = 1; i < m.size(); ++i)
+	
+	for (int i = 1, count = 0; i < m.size() && !(results.first & results.second); ++i, count = 0)
 	{
-		if (i == ignore) continue;
-		bool valid = true;
-		for (int j = 0; j < m.front().size() && valid; ++j)
-			for (int x = i - 1, y = i; x >= 0 && y < m.size() && valid; --x, ++y)
-				valid = (valid && m[x][j] == m[y][j]);
-		if (valid)
-			return i;
+		for (int j = 0; j < m.front().size() && count < 2; ++j)
+			for (int x = i - 1, y = i; x >= 0 && y < m.size() && count < 2; --x, ++y)
+				count += (m[x][j] != m[y][j]);
+
+		if (count == 0)
+			results.first = i*100;
+		else if (count == 1)
+			results.second = i*100;
 	}
 
-	return 0;
-}
-
-std::pair<int, int> SmudgeFind(std::vector<std::string>& m)
-{
-	int origCol = FindColumnMirror(m), origRow = FindRowMirror(m), first = origCol + 100 * origRow;
-
-	for (int x = 0; x < m.size(); ++x)
-		for (int y = 0; y < m.front().size(); ++y)
-		{
-			m[x][y] = (m[x][y] == '.' ? '#' : '.');
-			if (int i = FindColumnMirror(m, origCol);
-				i != 0)
-				return { first, i };
-			if (int i = FindRowMirror(m, origRow);
-				i != 0)
-				return { first, 100 * i };
-			
-			m[x][y] = (m[x][y] == '.' ? '#' : '.');
-		}
-
-	return { first, 0 }; // Error !
+	return results;
 }
 
 int main(int argc, char* argv[])
@@ -64,6 +38,7 @@ int main(int argc, char* argv[])
 		std::cout << "Usage: AoC23Day13.exe inputFilename\n";
 		return -1;
 	}
+	auto start = std::chrono::high_resolution_clock::now();
 	std::ifstream in(argv[1]);
 	if (!in)
 	{
@@ -79,7 +54,7 @@ int main(int argc, char* argv[])
 	{
 		if (line.empty())
 		{
-			auto [a, b] = SmudgeFind(pattern);
+			auto [a, b] = FindMirrors(pattern);
 			part1 += a; part2 += b;
 			pattern.clear();
 		}
@@ -87,6 +62,7 @@ int main(int argc, char* argv[])
 			pattern.push_back(line);
 	}
 
-	auto [a, b] = SmudgeFind(pattern);
-	std::cout << std::format("Part 1: {}\nPart 2: {}\n", part1 + a, part2 + b);
+	auto [a, b] = FindMirrors(pattern);
+	auto duration = std::chrono::duration_cast<std::chrono::microseconds>(std::chrono::high_resolution_clock::now() - start);
+	std::cout << std::format("Part 1: {}\nPart 2: {}\nDuration: {}\n", part1 + a, part2 + b, duration);
 }
