@@ -2,10 +2,7 @@ import std.core;
 
 constexpr int Hash(const std::string& s)
 {
-	int result = 0;
-	for (char c : s)
-		result = (17 * (result + (int)c)) % 256;
-	return result;
+	return std::accumulate(s.cbegin(), s.cend(), (unsigned char)0, [](unsigned char a, unsigned char b) { return (a + b) * 17; });
 }
 
 int main(int argc, char* argv[])
@@ -25,7 +22,6 @@ int main(int argc, char* argv[])
 	int part1 = 0, part2 = 0;
 	std::string line;
 	std::array<std::list<std::pair<std::string, int>>, 256> lenses;
-	std::unordered_set<std::string> placement;
 
 	while (std::getline(in, line, ','))
 	{
@@ -59,7 +55,6 @@ int main(int argc, char* argv[])
 			if (iter == lenses[box].end())
 				lenses[box].push_back({ label, power });
 		}
-
 	}
 
 	int boxMul = 1;
