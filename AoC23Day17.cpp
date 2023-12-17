@@ -139,6 +139,7 @@ int main(int argc, char* argv[])
 	using ASI = AStarInfo<PathInfo, int, true>;
 	Point targetPoint(heatMap.size() - 1, heatMap.front().size() - 1);
 	auto target = [targetPoint](const ASI& asi) { return asi.info.p == targetPoint; };
+	auto target2 = [targetPoint](const ASI& asi) { return asi.info.p == targetPoint && asi.info.moveCount >= 4; };
 
 	auto NotReverse = [](int a, int b)
 	{
@@ -226,12 +227,12 @@ int main(int argc, char* argv[])
 	
 	PathInfo info;
 	info.p = Point(0, 0);
-	info.lastDir = -1;
+	info.lastDir = -11;
 	info.moveCount = 0;
 	ASI start(info, 0, heatMap.size() + heatMap.front().size());
 
 	AStar aStar(start, expand, estimate, target);
-	AStar aStar2(start, expand2, estimate, target);
+	AStar aStar2(start, expand2, estimate, target2);
 
 	std::cout << std::format("Part 1: {}\nPart 2: {}\n", *aStar.Evaluate(), *aStar2.Evaluate());
 }
