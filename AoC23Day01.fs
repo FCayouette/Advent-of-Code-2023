@@ -8,7 +8,7 @@ let Part1 (x:string) =
 
 let Part2 (x:string)=
     let converted = x.Replace("one", "o1e").Replace("two", "t2").Replace("three", "t3e").Replace("four","4").Replace("five", "5e")
-                        .Replace("six", "6").Replace("seven", "7n").Replace("eight", "8e").Replace("nine", "9")
+                        .Replace("six", "6").Replace("seven", "7n").Replace("eight", "e8").Replace("nine", "9")
     Part1 converted
     
 [<EntryPoint>]
